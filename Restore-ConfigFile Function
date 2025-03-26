@@ -1,0 +1,37 @@
+##===================================
+## MARK: Restore-ConfigFile Function
+## ==================================
+
+function Restore-ConfigFile {
+    Param (
+        [string]$OldPath, # Old config is to be restored 
+        [string]$NewPath, # New Config is to be deleted
+        [string]$Name = "config.xml" # Default config file name, change to your config file name
+    )
+    
+    if (Test-Path $OldPath) {
+        if (Test-Path $NewPath){
+            try{
+                Remove-Item -Path $NewPath -Force -ErrorAction Stop
+                Write-Log "$NewPath has been removed successfully"
+            } catch {
+                Write-Log "Failed to remove $NewPath. Error: $_"
+                $global:ScriptFailed = $true
+                return 
+            }
+        } else {
+            Write-Log "$NewPath does not exist"
+        }
+
+        try {
+            Rename-Item -Path $OldPath -NewName (Split-Path -Leaf $NewPath) -Force -ErrorAction Stop
+            Write-Log "$OldPath has been reverted back to $NewPath"
+        } catch {
+            Write-Log "Failed to revert $Name. Error: $_"
+            $global:ScriptFailed = $true
+        }
+    } else {
+        Write-Log "Backup file could not be found for $Name. $OldPath"
+        $global:ScriptFailed = $true
+    }
+}
