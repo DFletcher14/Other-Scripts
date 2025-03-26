@@ -1,0 +1,28 @@
+##==================================
+## MARK: Move-Files Function
+##==================================
+
+function Move-Files {
+    Param (
+        [string]$SourceFile,
+        [string]$DestFolder
+    )
+    try{
+        $files = Get-Item -Path $SourceFile -ErrorAction Stop
+
+        # Check if the destination folder exists, if not create it
+        if (-not (Test-Path $DestFolder)) { 
+            New-Item -Path $DestFolder -ItemType Directory | Out-Null 
+            Write-Log "Sucessfully created $DestFolder"
+        }
+
+        foreach ($file in $files){ 
+            $destinationPath = Join-Path -Path $DestFolder -ChildPath $file.Name
+            Move-Item -Path $file.FullName -Destination $destinationPath -Force -ErrorAction Stop
+            Write-Log "$($file.FullName) has been moved to $destinationPath"
+        }
+    }
+    catch {
+        Write-Log "Failed to move $SourceFile to $DestFolder. Error: $_"
+    }
+}
