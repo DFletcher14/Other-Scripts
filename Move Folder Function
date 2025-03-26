@@ -1,0 +1,23 @@
+##================================================
+## MARK: Move-Folder Function
+##================================================
+function Move-Folder {
+    param (
+        [string]$SourceFolder,
+        [string]$DestinationFolder
+    )
+    try {
+        if (Test-Path $SourceFolder) {
+            if  (-not (Test-Path $DestinationFolder)) {
+                New-Item -Path $DestinationFolder -ItemType Directory | Out-Null
+            }
+            Move-Item -Path $SourceFolder -Destination $DestinationFolder -Force -ErrorAction Stop
+            Write-Log "$SourceFolder has been moved to $DestinationFolder"
+        } else {
+            Write-Log "$SourceFolder does not exist"
+        }
+    }
+    catch{ 
+        Write-Log "Failed to move $SourceFolder to $DestinationFolder. Error: $_"
+    }
+}
